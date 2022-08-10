@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion, MongoRuntimeError } = require('mongodb');
+const { MongoClient, ServerApiVersion,ObjectId, MongoRuntimeError } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
@@ -41,6 +41,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
      });
 
+      
+
        //delete 
        app.delete('/food/:id',async(req,res)=>{
         const id=req.params.id;
@@ -49,6 +51,24 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
         res.send(result);
     })
 
+
+    // update
+    app.put('/food/:id' ,async(req,res) =>{
+      const id = req.params.id;
+      const updateQuantity = req.body;
+      const delivery = updateQuantity.quantity -1;
+      const filter = {_id:ObjectId(id)}
+      const option = { upsert : true}
+      const updateDoc ={
+        $set:{
+        
+          quantity : delivery
+        
+        }
+      }
+      const result = await foodCollection.updateOne(filter,updateDoc,option);
+      res.send(result);
+    })
 
         app.get('/foods',async(req,res)=>{
             const query ={} ;
