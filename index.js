@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000 ;
+const { ObjectID } = require('bson');
 
 
 app.use(cors());
@@ -23,6 +24,32 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
         console.log('database connected ')
         const foodCollection =client.db('food_receipe').collection('foods')
         
+        app.post('/foods',async(req,res)=>{
+          const newfood  =req.body;
+          const result =await foodCollection.insertOne(newfood);
+          res.send(result);
+       })
+
+
+
+
+       app.get('/food/:id',async(req,res)=>{
+        const id =req.params.id;
+        const query ={_id:ObjectID(id)};
+        const result=await foodCollection.findOne(query);
+        res.send(result);
+
+     });
+
+       //delete 
+       app.delete('/food/:id',async(req,res)=>{
+        const id=req.params.id;
+        const query ={_id:ObjectID(id)}
+        const result =await foodCollection.deleteOne(query);
+        res.send(result);
+    })
+
+
         app.get('/foods',async(req,res)=>{
             const query ={} ;
             const cursor =foodCollection.find(query) ;
